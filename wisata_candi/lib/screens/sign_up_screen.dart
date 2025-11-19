@@ -17,8 +17,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
 
   // TODO: 1. Membuat fungsi _signUp
+  void _signUp() {
+    String fullname = _nameController.text.trim();
+    String username = _usernameController.text.trim();
+    String password = _passwordController.text.trim();
+
+    if (password.length < 8 ||
+        !password.contains(RegExp(r'[A-Z]')) ||
+        !password.contains(RegExp(r'[a-z]')) ||
+        !password.contains(RegExp(r'[0-9]')) ||
+        !password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      setState(() {
+        _errorText =
+            'Minimal 8 karakter, kombinasi [A-Z], [a-z], [0-9], [!@#\\\$%^&*(),.?":{}|<>]';
+      });
+      return;
+    } else {
+      setState(() {
+        _errorText = '';
+      });
+    }
+
+    print('*** Sign up berhasil!');
+    print('Nama: $fullname');
+    print('Nama Pengguna: $username');
+    print('Password: $password');
+  }
 
   // TODO: 2. Membuat fungsi dispose
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+  
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Form(
+              key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -40,6 +76,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       labelText: 'Nama',
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Nama tidak boleh kosong';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(
                     height: 20,
@@ -51,6 +93,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       border: OutlineInputBorder(),
                       hintText: "Masukkan username anda tanpa spasi"
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Nama pengguna tidak boleh kosong';
+                      }
+                      if (value.contains(' ')) {
+                        return 'Nama pengguna tidak boleh mengandung spasi';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(
                     height: 20,
@@ -80,7 +131,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     height: 20,
                   ),
                   ElevatedButton(
-                    onPressed: (){},
+                    onPressed: (){
+                      if (_formKey.currentState!.validate()) {
+                        
+                      }
+                      _signUp();
+                    },
                     child: const Text('Sign Up'),
                   ),
                 ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -17,7 +18,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
 
   // TODO: 1. Membuat fungsi _signUp
-  void _signUp() {
+  void _signUp() async{
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     String fullname = _nameController.text.trim();
     String username = _usernameController.text.trim();
     String password = _passwordController.text.trim();
@@ -35,6 +37,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } else {
       setState(() {
         _errorText = '';
+        prefs.setString("fullname", fullname);
+        prefs.setString("username", username);
+        prefs.setString("password", password); //jangan simpan password di shared preferences dalam aplikasi nyata
+        
+        Navigator.pushReplacementNamed(context, "/signin");
       });
     }
 

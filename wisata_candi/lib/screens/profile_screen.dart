@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisata_candi/screens/sign_in_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,16 +18,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   //5. implementasi fungsi signIn
   void signIn() {
+    // setState(() {
+    //   isSignedIn = !isSignedIn;
+    // });
+    // Navigator.push(context, 
+    //   MaterialPageRoute(builder: (context) => SignInScreen())
+    // );
+    Navigator.pushNamed(context, "/signin");
+  }
+
+  //6. implementasi fungsi signOut
+  void signOut() async{
+    // Hapus status sign in dari SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("isSignedIn");
     setState(() {
       isSignedIn = !isSignedIn;
     });
   }
 
-  //6. implementasi fungsi signOut
-  void signOut() {
+   void _checkSignInStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      isSignedIn = !isSignedIn;
+      isSignedIn = prefs.getBool("isSignedIn") ?? false;
     });
+  }
+  
+  @override
+  void initState() {
+    // TODO: implement initState
+    _checkSignInStatus();
+    super.initState();
   }
 
   @override

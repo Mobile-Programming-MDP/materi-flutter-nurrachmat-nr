@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisata_candi/screens/sign_up_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -16,9 +17,28 @@ class _SignInScreenState extends State<SignInScreen> {
   String _errorText = '';
   bool _obscurePassword = true;
 
-  void _signIn() {
+  void _signIn() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String savedUsername = prefs.getString("username") ?? "";
+    String savedPassword = prefs.getString("password") ?? "";
     String username = _usernameController.text.trim();
     String password = _passwordController.text.trim();
+
+    //Cek username dan password telah diisi (tidak kosong)
+    if(username.isEmpty || password.isEmpty){
+      setState(() {
+        _errorText = 'Nama Pengguna dan Kata Sandi tidak boleh kosong';
+      });
+      return;
+    }
+
+    //Cek apakah user sudah terdaftar
+    if(savedUsername.isEmpty || savedPassword.isEmpty){
+      setState(() {
+        _errorText = 'Pengguna belum terdaftar. Silakan daftar terlebih dahulu.';
+      });
+      return;
+    }
 
     if (password.length < 8 ||
         !password.contains(RegExp(r'[A-Z]')) ||
@@ -30,10 +50,29 @@ class _SignInScreenState extends State<SignInScreen> {
             'Minimal 8 karakter, kombinasi [A-Z], [a-z], [0-9], [!@#\\\$%^&*(),.?":{}|<>]';
       });
       return;
-    } else {
+    }
+
+    if(username == savedUsername && password == savedPassword){
       setState(() {
         _errorText = '';
+        prefs.setBool("isSignedIn", true);
       });
+
+      //hapus semua widget dari stack
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      });
+
+      //navigasi ke main screen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, "/");
+      });
+
+    } else {
+      setState(() {
+        _errorText = 'Nama Pengguna atau Kata Sandi salah';
+      });
+      return;
     }
 
     print('*** Sign in berhasil!');

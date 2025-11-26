@@ -11,16 +11,47 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   // TODO: 1. Deklarasikan variabel yang dibutuhkan
-  final List<Candi> _filteredCandis = candiList;
-  final String _searchQuery = '';
+
+  List<Candi> _filteredCandis = candiList;
+  String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+
+  //Todo 1 : Buat method _searchCandi
+  void _searchCandi() {
+    _searchQuery = _searchController.text;
+    setState(() {
+      _filteredCandis = candiList
+          // .where(
+          //   (candi) =>
+          //       candi.name.toLowerCase().contains(_searchQuery.toLowerCase().trim()),
+          // )
+          .where((candi) {
+            return candi.name.toLowerCase().contains(_searchQuery.toLowerCase().trim());
+          })
+          .toList();
+    });
+    return;
+  }
+
+  //Todo 2 : Panggil method _searchCandi dari _searchController di dalam initState
+  @override
+  void initState() {
+    _searchController.addListener(_searchCandi);
+    super.initState();
+  }
+
+  //Todo 3 : Lakukan dispose
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // TODO: 2. Buat appbar dengan judul Pencarian Candi
-      appBar: AppBar(
-        title: const Text('Pencarian Candi'),
-      ),
+      appBar: AppBar(title: const Text('Pencarian Candi')),
       // TODO: 3. Buat body berupa Column
       body: Column(
         children: [
@@ -32,7 +63,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 borderRadius: BorderRadius.circular(5),
                 color: Colors.deepPurple[50],
               ),
-              child: const TextField(
+              child: TextField(
+                controller: _searchController,
                 autofocus: false,
                 // TODO: 6. Implementasi fitur pencarian
                 decoration: InputDecoration(
@@ -43,13 +75,15 @@ class _SearchScreenState extends State<SearchScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.deepPurple),
                   ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ),
           ),
-        
+
           // TODO: 5. Buat ListView hasil pencarian sebagai anak dari Column
           Expanded(
             child: ListView.builder(
@@ -59,26 +93,22 @@ class _SearchScreenState extends State<SearchScreen> {
                 // TODO: 8. Implementasi GestureDetector dan Hero animation
                 return GestureDetector(
                   onHorizontalDragUpdate: (DragUpdateDetails details) {
-                      if (details.delta.dx < 0) {
-                        // User is swiping left
-                        Navigator.push(context, 
-                            MaterialPageRoute(
-                            builder: (context) => DetailScreen(candi: candi)
-                          )
-                        );
-                      }
-                      //jika ke kanan maka : details.delta.dx > 0
-                    },
-                  // onLongPress: () {
-                  //   Navigator.push(context, 
-                  //             MaterialPageRoute(
-                  //         builder: (context) => DetailScreen(candi: candi)
-                  //       )
-                  //   );
-                  // },
+                    if (details.delta.dx < 0) {
+                      // User is swiping left
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailScreen(candi: candi),
+                        ),
+                      );
+                    }
+                    //jika ke kanan maka : details.delta.dx > 0
+                  },
                   child: Card(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -118,7 +148,7 @@ class _SearchScreenState extends State<SearchScreen> {
               },
             ),
           ),
-          const SizedBox(height: 16)
+          const SizedBox(height: 16),
         ],
       ),
     );

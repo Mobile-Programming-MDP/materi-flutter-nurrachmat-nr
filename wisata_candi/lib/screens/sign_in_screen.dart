@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisata_candi/screens/sign_up_screen.dart';
+import 'package:wisata_candi/helpers/encryption_helper.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -19,8 +20,12 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void _signIn() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String savedUsername = prefs.getString("username") ?? "";
-    String savedPassword = prefs.getString("password") ?? "";
+    String encryptedUsername = prefs.getString("username") ?? "";
+    String encryptedPassword = prefs.getString("password") ?? "";
+    
+    String savedUsername = encryptedUsername.isNotEmpty ? EncryptionHelper.decryptText(encryptedUsername) : "";
+    String savedPassword = encryptedPassword.isNotEmpty ? EncryptionHelper.decryptText(encryptedPassword) : "";
+  
     String username = _usernameController.text.trim();
     String password = _passwordController.text.trim();
 

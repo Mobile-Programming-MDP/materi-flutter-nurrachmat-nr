@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisata_candi/helpers/encryption_helper.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -18,7 +19,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
 
   // TODO: 1. Membuat fungsi _signUp
-  void _signUp() async{
+  void _signUp() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String fullname = _nameController.text.trim();
     String username = _usernameController.text.trim();
@@ -35,20 +36,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
       return;
     } else {
-      setState(() {
-        _errorText = '';
-        prefs.setString("fullname", fullname);
-        prefs.setString("username", username);
-        prefs.setString("password", password); //jangan simpan password di shared preferences dalam aplikasi nyata
-        
-        Navigator.pushReplacementNamed(context, "/signin");
-      });
-    }
+      if (username.isNotEmpty && fullname.isNotEmpty && password.isNotEmpty) {
+        String encryptedFullname = EncryptionHelper.encryptText(fullname);
+        String encryptedUsername = EncryptionHelper.encryptText(username);
+        String encryptedPassword = EncryptionHelper.encryptText(password);
 
-    print('*** Sign up berhasil!');
-    print('Nama: $fullname');
-    print('Nama Pengguna: $username');
-    print('Password: $password');
+        print('*** Sign up berhasil!');
+        print('Nama: $fullname');
+        print('Nama Pengguna: $username');
+        print('Password (Plain): $password');
+        print('Password (Encrypted): $encryptedPassword');
+
+        setState(() {
+          _errorText = '';
+          prefs.setString("fullname", encryptedFullname);
+          prefs.setString("username", encryptedUsername);
+          prefs.setString(
+            "password",
+            encryptedPassword,
+          );
+          Navigator.pushReplacementNamed(context, "/signin");
+        });
+      } else {
+        setState(() {
+          _errorText = 'Nama dan Nama Pengguna tidak boleh kosong!';
+        });
+        return;
+      }
+    }
   }
 
   // TODO: 2. Membuat fungsi dispose
@@ -59,14 +74,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-  
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up'),
-      ),
+      appBar: AppBar(title: const Text('Sign Up')),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -90,15 +103,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   TextFormField(
                     controller: _usernameController,
                     decoration: const InputDecoration(
                       labelText: 'Nama Pengguna',
                       border: OutlineInputBorder(),
-                      hintText: "Masukkan username anda tanpa spasi"
+                      hintText: "Masukkan username anda tanpa spasi",
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -110,9 +121,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
@@ -134,14 +143,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     obscureText: _obscurePassword,
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: (){
-                      if (_formKey.currentState!.validate()) {
-                        
-                      }
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {}
                       _signUp();
                     },
                     child: const Text('Sign Up'),

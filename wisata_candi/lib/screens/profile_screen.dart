@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisata_candi/data/candi_data.dart';
+import 'package:wisata_candi/helpers/encryption_helper.dart';
 import 'package:wisata_candi/screens/sign_in_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,12 +20,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   //5. implementasi fungsi signIn
   void signIn() {
-    // setState(() {
-    //   isSignedIn = !isSignedIn;
-    // });
-    // Navigator.push(context, 
-    //   MaterialPageRoute(builder: (context) => SignInScreen())
-    // );
     Navigator.pushNamed(context, "/signin");
   }
 
@@ -39,8 +35,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
    void _checkSignInStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String savedFullname = prefs.getString("fullname") ?? '';
+    String savedUsername = prefs.getString("username") ?? '';
+    
     setState(() {
       isSignedIn = prefs.getBool("isSignedIn") ?? false;
+      fullName = savedFullname.isNotEmpty ? EncryptionHelper.decryptText(savedFullname) : '';
+      userName = savedUsername.isNotEmpty ? EncryptionHelper.decryptText(savedUsername) : '';
+    });
+  }
+
+  void _getFavoriteCandi()async{
+    SharedPreferences prefs=await SharedPreferences.getInstance();
+    setState(() {
+      favoriteCandiCount=candiList.where((candi){
+        return prefs.getBool('favorite_${candi.name}')?? false;
+      }).toList().length;
     });
   }
   
@@ -48,6 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     // TODO: implement initState
     _checkSignInStatus();
+    _getFavoriteCandi();
     super.initState();
   }
 

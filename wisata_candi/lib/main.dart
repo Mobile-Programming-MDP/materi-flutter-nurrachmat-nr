@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wisata_candi/data/candi_data.dart';
 import 'package:wisata_candi/screens/detail_screen.dart';
+import 'package:wisata_candi/screens/encryption_demo.dart';
 import 'package:wisata_candi/screens/home_screen.dart';
 import 'package:wisata_candi/screens/main_screen.dart';
 import 'package:wisata_candi/screens/sign_in_screen.dart';
